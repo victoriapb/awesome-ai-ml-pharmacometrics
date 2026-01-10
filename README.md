@@ -2,6 +2,15 @@
 
 AI/ML References in Pharmacometrics / Clinical Pharmacology
 
+
+## Reviews
+
+- [Building Hybrid Pharmacometric-Machine Learning Models in Oncology Drug Development: Current State and Recommendations](https://ascpt.onlinelibrary.wiley.com/doi/10.1002/psp4.70113)
+
+## Tutorial/introduction to the topic
+
+- [Machine Learning in Drug Discovery and Development Part 1: A Primer](https://ascpt.onlinelibrary.wiley.com/doi/10.1002/psp4.12491)
+
 ## ML for PK Modeling 
 
 - [Comparing Scientific Machine Learning With Population Pharmacokinetic and Classical Machine Learning Approaches for Prediction of Drug Concentrations](https://ascpt.onlinelibrary.wiley.com/doi/10.1002/psp4.13313)
@@ -15,14 +24,6 @@ AI/ML References in Pharmacometrics / Clinical Pharmacology
 - [Clinical decision support for chemotherapy-induced neutropenia using a hybrid pharmacodynamic/machine learning model](https://ascpt.onlinelibrary.wiley.com/doi/10.1002/psp4.13019)
 
 - [Applying interpretable machine learning workflow to evaluate exposure–response relationships for large-molecule oncology drugs](https://ascpt.onlinelibrary.wiley.com/doi/10.1002/psp4.12871)
-
-## Reviews
-
-- [Building Hybrid Pharmacometric-Machine Learning Models in Oncology Drug Development: Current State and Recommendations](https://ascpt.onlinelibrary.wiley.com/doi/10.1002/psp4.70113)
-
-## Tutorial/introduction to the topic
-
-- [Machine Learning in Drug Discovery and Development Part 1: A Primer](https://ascpt.onlinelibrary.wiley.com/doi/10.1002/psp4.12491)
 
 ## Virtual Patient Generation
 
