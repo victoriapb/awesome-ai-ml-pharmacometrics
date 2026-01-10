@@ -1,6 +1,6 @@
 # awesome-ai-ml-pharmacometrics
 
-AI/ML references in pharmacometrics / clinical pharmacology
+AI/ML References in Pharmacometrics / Clinical Pharmacology
 
 ## ML for PK modeling 
 
@@ -24,13 +24,13 @@ AI/ML references in pharmacometrics / clinical pharmacology
 
 - [Machine Learning in Drug Discovery and Development Part 1: A Primer](https://ascpt.onlinelibrary.wiley.com/doi/10.1002/psp4.12491)
 
-## Virtual Patient generation
+## Virtual Patient Generation
 
 - [Using machine learning surrogate modeling for faster QSP VP cohort generation](https://ascpt.onlinelibrary.wiley.com/doi/10.1002/psp4.12999)
 
 - [Using machine learning surrogate modeling for faster QSP VP cohort generation](https://ascpt.onlinelibrary.wiley.com/doi/10.1002/psp4.12999)
 
-## Surrogate modeling
+## Surrogate Modeling
 
 - [Accelerating virtual patient generation with a Bayesian optimization and machine learning surrogate model](https://ascpt.onlinelibrary.wiley.com/doi/10.1002/psp4.13288)
 
@@ -38,7 +38,7 @@ AI/ML references in pharmacometrics / clinical pharmacology
 
 - [Shap-Cov: An Explainable Machine Learning Based Workflow for Rapid Covariate Identification in Population Modeling](https://ascpt.onlinelibrary.wiley.com/doi/10.1002/psp4.70044)
 
-## Covariate imputation
+## Covariate Imputation
 
 - [Evaluation of machine learning methods for covariate data imputation in pharmacometrics](https://ascpt.onlinelibrary.wiley.com/doi/10.1002/psp4.12874)
 
