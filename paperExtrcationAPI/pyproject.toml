@@ -1,0 +1,8 @@
+[project]
+name = "paperextrcationapi"
+version = "0.1.0"
+requires-python = ">=3.10"
+dependencies = [
+    "jupyterlab>=4.5.2",
+    "requests>=2.32.5",
+]
