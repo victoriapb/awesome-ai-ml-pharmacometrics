@@ -2,5 +2,7 @@
 .ipynb_checkpoints/
 .jupyter.log
 
+.cache/
+*.json
+
 notes.md
-tests.ipynb

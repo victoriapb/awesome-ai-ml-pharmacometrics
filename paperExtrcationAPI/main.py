@@ -4,13 +4,36 @@ Automated Research Paper Detector & Classifier for AI/ML in Pharma
 Fetches recent papers from PubMed and classifies them using Claude API
 """
 
+import argparse
 import json
 import os
+import xml.etree.ElementTree as ET
 from collections import defaultdict
 from datetime import datetime, timedelta
+from time import sleep
 
 import anthropic
 import requests
+from diskcache import Cache
+from pyzotero import Zotero
+
+cache = Cache(".cache")
+
+zot = None
+if "ZOTERO_API_KEY" in os.environ:
+    zot = Zotero(
+        "6377183", "group", os.environ["ZOTERO_API_KEY"]
+    )  # local=True for read access to local Zotero
+
+# Initialize Claude client
+api_key = os.environ.get("ANTHROPIC_API_KEY")
+
+anthropic_client = None
+if "ANTHROPIC_API_KEY" in os.environ:
+    anthropic_client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+
+
+BASE_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/"
 
 # Configuration
 CATEGORIES = [
@@ -34,126 +57,85 @@ SEARCH_TERMS = [
 ]
 
 
-def fetch_pubmed_papers(days_back=1, max_results=20):
-    """Fetch recent papers from PubMed API"""
-
-    base_url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/"
-    papers = []
-
-    # Calculate date range
+def get_pmids(term, days_back=1, max_results=20):
+    # Define time range
     end_date = datetime.now()
     start_date = end_date - timedelta(days=days_back)
     date_range = f"{start_date.strftime('%Y/%m/%d')}:{end_date.strftime('%Y/%m/%d')}"
 
-    for term in SEARCH_TERMS:
-        # Search PubMed
-        search_query = f"{term} AND {date_range}[PDAT]"
-        search_url = f"{base_url}esearch.fcgi"
-        search_params = {
-            "db": "pubmed",
-            "term": search_query,
-            "retmax": max_results,
-            "retmode": "json",
+    search_query = f"{term} AND {date_range}[PDAT]"
+    search_url = f"{BASE_URL}esearch.fcgi"
+    search_params = {
+        "db": "pubmed",
+        "term": search_query,
+        "retmax": max_results,
+        "retmode": "json",
+    }
+    search_response = requests.get(search_url, params=search_params)
+    search_data = search_response.json()
+
+    pmids = []
+    if "esearchresult" in search_data and "idlist" in search_data["esearchresult"]:
+        pmids = search_data["esearchresult"]["idlist"]
+    return pmids
+
+
+def get_article_entry(elem, key):
+    res = elem.find(f".//{key}")
+    if res is not None:
+        return "".join(res.itertext())
+
+
+@cache.memoize()
+def query_pmid(pmid):
+    # Fetch paper details
+    fetch_url = f"{BASE_URL}efetch.fcgi"
+    fetch_params = {"db": "pubmed", "id": pmid, "retmode": "xml"}
+    fetch_response = requests.get(fetch_url, params=fetch_params)
+
+    root = ET.fromstring(fetch_response.content)
+
+    articles = []
+    for article in root.findall(".//PubmedArticle"):
+        # Extract article info
+        pmid = get_article_entry(article, "PMID")
+        article_dict = {
+            "itemType": "journalArticle",
+            "title": get_article_entry(article, "ArticleTitle"),
+            "abstractNote": get_article_entry(article, "AbstractText"),
+            "PMID": pmid,
+            "date": get_article_entry(article, "PubDate"),
+            "url": f"https://pubmed.ncbi.nlm.nih.gov/{pmid}/",
+            "DOI": get_article_entry(article, "ArticleId[@IdType='doi']"),
+            "creators": [
+                {
+                    "creatorType": "author",
+                    "firstName": author.findtext("ForeName"),
+                    "lastName": author.findtext("LastName"),
+                }
+                for author in article.findall(".//AuthorList/Author")
+            ],
         }
-
-        try:
-            search_response = requests.get(search_url, params=search_params)
-            search_data = search_response.json()
-
-            if (
-                "esearchresult" not in search_data
-                or "idlist" not in search_data["esearchresult"]
-            ):
-                continue
-
-            pmids = search_data["esearchresult"]["idlist"]
-
-            if not pmids:
-                continue
-
-            # Fetch paper details
-            fetch_url = f"{base_url}efetch.fcgi"
-            fetch_params = {"db": "pubmed", "id": ",".join(pmids), "retmode": "xml"}
-
-            fetch_response = requests.get(fetch_url, params=fetch_params)
-
-            # Parse XML response (simple parsing)
-            import xml.etree.ElementTree as ET
-
-            root = ET.fromstring(fetch_response.content)
-
-            for article in root.findall(".//PubmedArticle"):
-                try:
-                    # Extract article info
-                    title_elem = article.find(".//ArticleTitle")
-                    abstract_elem = article.find(".//AbstractText")
-                    pmid_elem = article.find(".//PMID")
-                    pub_date = article.find(".//PubDate")
-                    doi_elem = article.find(".//ArticleId[@IdType='doi']")
-
-                    if title_elem is None or pmid_elem is None:
-                        continue
-
-                    title = "".join(title_elem.itertext())
-                    abstract = (
-                        "".join(abstract_elem.itertext())
-                        if abstract_elem is not None
-                        else ""
-                    )
-                    pmid = pmid_elem.text
-
-                    doi = ""
-                    if doi_elem is not None:
-                        doi = "".join(doi_elem.itertext())
-
-                    # Extract publication date
-                    year = pub_date.find("Year")
-                    month = pub_date.find("Month")
-                    day = pub_date.find("Day")
-
-                    pub_date_str = ""
-                    if year is not None:
-                        pub_date_str = year.text
-                        if month is not None:
-                            pub_date_str += f"-{month.text}"
-                            if day is not None:
-                                pub_date_str += f"-{day.text}"
-
-                    paper = {
-                        "pmid": pmid,
-                        "title": title,
-                        "abstract": abstract,
-                        "url": f"https://pubmed.ncbi.nlm.nih.gov/{pmid}/",
-                        "pub_date": pub_date_str,
-                        "doi": doi,
-                    }
-
-                    # Avoid duplicates
-                    if not any(p["pmid"] == pmid for p in papers):
-                        papers.append(paper)
-
-                except Exception as e:
-                    print(f"Error parsing article: {e}")
-                    continue
-
-        except Exception as e:
-            print(f"Error fetching papers for term '{term}': {e}")
-            continue
-
-    return papers
+        articles.append(article_dict)
+    if len(articles) > 1:
+        raise RuntimeError(f"Too many articles for given PMID ({pmid})")
+    return articles[0]
 
 
-def classify_paper(paper, client):
+@cache.memoize()
+def classify_paper(title, abstract):
     """Use Claude API to classify and summarize paper"""
 
+    if abstract is None:
+        abstract = ""
     prompt = f"""You are a pharmaceutical research expert. Classify this research paper into ONE of these categories and provide a brief 1-sentence summary.
 
 Categories:
 {chr(10).join(f"- {cat}" for cat in CATEGORIES)}
 
-Paper Title: {paper['title']}
+Paper Title: {title}
 
-Abstract: {paper['abstract'][:1500]}
+Abstract: {abstract[:1500]}
 
 Respond in JSON format only:
 {{
@@ -162,7 +144,7 @@ Respond in JSON format only:
 }}"""
 
     try:
-        message = client.messages.create(
+        message = anthropic_client.messages.create(
             model="claude-sonnet-4-20250514",
             max_tokens=500,
             messages=[{"role": "user", "content": prompt}],
@@ -180,130 +162,135 @@ Respond in JSON format only:
             return "Other/General", "AI/ML application in pharmaceutical research"
 
     except Exception as e:
-        print(f"Error classifying paper {paper['pmid']}: {e}")
+        print(f"Error classifying paper {title}: {e}")
         return "Other/General", "AI/ML application in pharmaceutical research"
 
 
-def update_readme(categorized_papers):
-    """Update README.md with new papers"""
+def upload_to_zotero(zot, article):
+    in_library = zot.items(q=article["title"])
+    resp = None
+    if len(in_library) == 0:
+        resp = zot.create_items([article])
+        print(f"Article with PMID {article['PMID']} uploaded to zotero library")
 
-    readme_path = "README.md"
+    elif len(in_library) == 1:
+        in_library_pmid = in_library[0]["data"]["PMID"]
+        if in_library_pmid == article["PMID"]:
+            print(f"Article with PMID {article['PMID']} already in the library")
+        else:
+            raise RuntimeError(
+                f"In library PMID {in_library_pmid} !=  article PMID {article['PMID']}"
+            )
 
-    # Read existing README or create new one
-    if os.path.exists(readme_path):
-        with open(readme_path, "r", encoding="utf-8") as f:
-            existing_content = f.read()
+    elif len(in_library) > 1:
+        raise RuntimeError(
+            "Something went wrong! \nNumber of papers with "
+            f"title {article['title']} in library is {in_library}.\n"
+        )
+
     else:
-        existing_content = """# Awesome AI/ML in Pharma 🧬🤖
+        raise RuntimeError("Something went wrong!")
+
+    sleep(1)
+
+    return resp
+
+
+def update_readme(articles, cat_map, filename="README.md"):
+    header = f"""# Awesome AI/ML in Pharma 🧬🤖
 
 A curated list of recent research papers on AI/ML applications in pharmaceutical sciences, automatically updated daily.
 
-**Last Updated**: {date}
+**Last Updated**: {datetime.now().strftime('%Y-%m-%d')}
 
 ---
-
 """
 
-    # Update date
-    existing_content = existing_content.split("\n")
-    for i, line in enumerate(existing_content):
-        if "**Last Updated**:" in line:
-            existing_content[i] = (
-                f"**Last Updated**: {datetime.now().strftime('%Y-%m-%d')}"
-            )
-            break
-    existing_content = "\n".join(existing_content)
+    with open(filename, "w") as fh:
+        fh.write(header)
 
-    # Build new entries by category
-    new_entries = defaultdict(list)
+        for cat, pmids in cat_map.items():
+            fh.write(f"\n## {cat}\n")
 
-    for paper in categorized_papers:
-        category = paper["category"]
-        entry = f"- **[{paper['title']}]({paper['url']})** - {paper['summary']} _{paper['pub_date']}_"
-        new_entries[category].append(entry)
-
-    # Add new entries to README
-    for category in CATEGORIES:
-        if category not in new_entries:
-            continue
-
-        # Find or create category section
-        category_header = f"## {category}"
-
-        if category_header not in existing_content:
-            # Add new category section
-            existing_content += f"\n\n{category_header}\n\n"
-
-        # Add papers under category
-        for entry in new_entries[category]:
-            if entry not in existing_content:
-                # Find the category section and add entry
-                lines = existing_content.split("\n")
-                for i, line in enumerate(lines):
-                    if line == category_header:
-                        # Find next category or end of file
-                        j = i + 1
-                        while j < len(lines) and not lines[j].startswith("## "):
-                            j += 1
-                        # Insert before next category
-                        lines.insert(j, entry)
-                        break
-                existing_content = "\n".join(lines)
-
-    # Write updated README
-    with open(readme_path, "w", encoding="utf-8") as f:
-        f.write(existing_content)
-
-    print(f"✓ Updated README.md with {len(categorized_papers)} papers")
+            for pmid in pmids:
+                article = articles[pmid]
+                fh.write(
+                    f"\n- **[{article['title']}]({article['url']})**"
+                    f"\n\t- {article['extra']}"
+                    f"\n\t- Published: {article['date']}\n"
+                )
 
 
-def main():
+def main(
+    filename="all_articles.json",
+    readme_path="../README.md",
+    days_back=1,
+    max_results=20,
+):
     """Main execution"""
+    # Load previously fetched papers
+    articles = dict()
+    if os.path.isfile(filename):
+        with open(filename, "r") as fh:
+            articles = json.load(fh)
 
+    # Download new papers
+    pmids = {
+        pmid
+        for term in SEARCH_TERMS
+        for pmid in get_pmids(term, days_back, max_results)
+    }
     print("🔬 Fetching recent AI/ML pharma papers from PubMed...")
+    articles.update({pmid: query_pmid(pmid) for pmid in pmids if pmid not in articles})
+    print(f"Got {len(articles)} articles")
 
-    # Fetch papers from last 1 day
-    papers = fetch_pubmed_papers(days_back=1, max_results=20)
-    print(f"✓ Found {len(papers)} papers")
+    print("🤖 Classifying papers with Claude and uploading to zotero...")
+    cat2pmid = defaultdict(list)
+    for pmid, article in articles.items():
+        # Get category from claude
+        category = "Undetermined"
+        summary = ""
+        if anthropic_client is not None:
+            category, summary = classify_paper(
+                article["title"], article["abstractNote"]
+            )
 
-    if not papers:
-        print("No new papers found.")
-        return
+        cat2pmid[category].append(pmid)
 
-    # Initialize Claude client
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
+        if category != "Undetermined":
+            article["tags"] = [{"tag": category}]
+        article["extra"] = f"AI summary: {summary}"
 
-    if not api_key:
-        raise ValueError("ANTHROPIC_API_KEY environment variable not set")
+        # Upload to zotero
+        if zot is not None:
+            upload_to_zotero(zot, article)
 
-    client = anthropic.Anthropic(api_key=api_key)
+    # Update json file
+    with open(filename, "w") as fh:
+        json.dump(articles, fh, indent=1)
 
-    print("🤖 Classifying papers with Claude...")
-
-    # Classify each paper
-    categorized_papers = []
-    for i, paper in enumerate(papers, 1):
-        print(f"  [{i}/{len(papers)}] {paper['title'][:60]}...")
-        category, summary = classify_paper(paper, client)
-
-        categorized_papers.append(
-            {
-                "title": paper["title"],
-                "url": paper["url"],
-                "summary": summary,
-                "category": category,
-                "pub_date": paper["pub_date"],
-            }
-        )
-
-    print(f"✓ Classified {len(categorized_papers)} papers")
-
-    # Update README
     print("📝 Updating README.md...")
-    update_readme(categorized_papers)
-
-    print("✅ Done! Check README.md for updates.")
+    update_readme(articles, cat2pmid, readme_path)
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser("paperExtractionAPI.py")
+    parser.add_argument(
+        "-f",
+        "--filename",
+        default="all_articles.json",
+        help="File to store all information for the papers",
+    )
+    parser.add_argument(
+        "--readme_path", default="../README.md", help="Path to README file to generate"
+    )
+    parser.add_argument(
+        "--days_back", default=1, type=int, help="How far back to query PubMed API"
+    )
+    parser.add_argument(
+        "--max_results", default=20, type=int, help="Max number of results"
+    )
+
+    args = parser.parse_args()
+
+    main(**vars(args))
