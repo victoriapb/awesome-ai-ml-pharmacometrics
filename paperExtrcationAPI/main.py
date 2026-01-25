@@ -166,36 +166,6 @@ Respond in JSON format only:
         return "Other/General", "AI/ML application in pharmaceutical research"
 
 
-def upload_to_zotero(zot, article):
-    in_library = zot.items(q=article["title"])
-    resp = None
-    if len(in_library) == 0:
-        resp = zot.create_items([article])
-        print(f"Article with PMID {article['PMID']} uploaded to zotero library")
-
-    elif len(in_library) == 1:
-        in_library_pmid = in_library[0]["data"]["PMID"]
-        if in_library_pmid == article["PMID"]:
-            print(f"Article with PMID {article['PMID']} already in the library")
-        else:
-            raise RuntimeError(
-                f"In library PMID {in_library_pmid} !=  article PMID {article['PMID']}"
-            )
-
-    elif len(in_library) > 1:
-        raise RuntimeError(
-            "Something went wrong! \nNumber of papers with "
-            f"title {article['title']} in library is {in_library}.\n"
-        )
-
-    else:
-        raise RuntimeError("Something went wrong!")
-
-    sleep(1)
-
-    return resp
-
-
 def update_readme(articles, cat_map, filename="README.md"):
     header = f"""# Awesome AI/ML in Pharma 🧬🤖
 
@@ -244,6 +214,12 @@ def main(
     articles.update({pmid: query_pmid(pmid) for pmid in pmids if pmid not in articles})
     print(f"Got {len(articles)} articles")
 
+    # If zotero is accessible (API key is given), then check which papers have
+    # been already uploaded
+    if zot is not None:
+        pmids_in_zot = {x["data"]["PMID"] for x in zot.items()}
+        pmids_to_upload = set(articles.keys()) - pmids_in_zot
+
     print("🤖 Classifying papers with Claude and uploading to zotero...")
     cat2pmid = defaultdict(list)
     for pmid, article in articles.items():
@@ -262,8 +238,9 @@ def main(
         article["extra"] = f"AI summary: {summary}"
 
         # Upload to zotero
-        if zot is not None:
-            upload_to_zotero(zot, article)
+        if zot is not None and article["PMID"] in pmids_to_upload:
+            zot.create_items([article])
+            sleep(1)
 
     # Update json file
     with open(filename, "w") as fh:
