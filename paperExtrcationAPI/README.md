@@ -25,7 +25,7 @@ python3 main.py
 ```
 
 You can increase from how many previous days papers are queried to PubMed API
-and the maxiumum number of results with:
+and the maximum number of results with:
 ```
 python3 main.py --days_back <num_days> --max_results <max_results>
 ```
