@@ -94,7 +94,7 @@ PMX_APPLICATION_TAGS = [
     "Precision medicine / optimized treatment regimen",
     "Causal inference",
     "Data imputation",
-    "Discovery of subpatient groups"
+    "Discovery of subpatient groups",
 ]
 
 PAPER_TYPE_TAGS = ["review", "tutorial", "perspective"]
@@ -118,7 +118,7 @@ METHODOLOGY_TAGS = [
     "Time-series modeling",
     "Mechanism-informed machine learning",
     "LLM",
-    "AI Agents"
+    "AI Agents",
 ]
 
 
@@ -172,11 +172,11 @@ def get_pmids(
 
     # Parameters passed to PubMed
     search_params = {
-        "db": "pubmed",        # database to search
-        "term": full_query,    # search query
-        "retmax": max_results, # max number of results
-        "retmode": "json",     # JSON response (easier to parse)
-        "usehistory": "n",     # do not store query on NCBI servers
+        "db": "pubmed",  # database to search
+        "term": full_query,  # search query
+        "retmax": max_results,  # max number of results
+        "retmode": "json",  # JSON response (easier to parse)
+        "usehistory": "n",  # do not store query on NCBI servers
     }
 
     # Execute HTTP GET request with a timeout for safety
@@ -234,7 +234,8 @@ def query_pmid(pmid):
         raise RuntimeError(f"Too many articles for given PMID ({pmid})")
     return articles[0]
 
-# @cache.memoize()  
+
+# @cache.memoize()
 def classify_paper(title, abstract):
     """
     Classify a paper into multiple axes: paper_type, application, methodology.
@@ -257,7 +258,7 @@ def classify_paper(title, abstract):
                 "application": [FALLBACK_TAG],
                 "methodology": [FALLBACK_TAG],
             },
-            "Claude not configured"
+            "Claude not configured",
         )
 
     # Build the prompt dynamically from external tag lists
@@ -309,20 +310,19 @@ Response format:
         summary = "AI/ML application in pharmacometrics or clinical pharmacology"
 
         # Try to parse JSON from Claude response
-        try:
-            start_idx = response_text.find("{")
-            end_idx = response_text.rfind("}") + 1
-            result = json.loads(response_text[start_idx:end_idx])
-            summary = result.get("summary", summary)
 
-        except Exception:
-            result = {}
+        start_idx = response_text.find("{")
+        end_idx = response_text.rfind("}") + 1
+        result = {}
+        if start_idx != -1 and end_idx != 0:
+            result = json.loads(response_text[start_idx:end_idx])
+        summary = result.get("summary", summary)
 
         # --- Extract tags per axis ---
-        classification = {}
-        for axis in ["paper_type", "application", "methodology"]:
-            tags = result.get(axis, []) if isinstance(result, dict) else []
-            classification[axis] = tags
+        classification = {
+            axis: result.get(axis, [])
+            for axis in ["paper_type", "application", "methodology"]
+        }
 
         # --- If all axes empty, assign fallback Other/General only to application ---
         if all(len(tags) == 0 for tags in classification.values()):
@@ -338,48 +338,9 @@ Response format:
                 "application": [FALLBACK_TAG],
                 "methodology": [FALLBACK_TAG],
             },
-            "Error during classification"
+            "Error during classification",
         )
 
-# --- Pipeline to classify all articles and prepare outputs ---
-def classify_and_prepare(articles, zot=None):
-    """
-    Classify papers, update articles dict, prepare cat_map for README, 
-    and Zotero tags if zot is provided.
-    """
-
-    # Only store PMX applications as README sections
-    cat_map = defaultdict(list)
-
-    for pmid, article in articles.items():
-        classification, summary = classify_paper(article["title"], article.get("abstractNote", ""))
-        article["classification"] = classification
-        article["extra"] = summary  # Always keep AI summary
-
-        # --- README aggregation: only use PMX applications as section headers ---
-        pmx_apps = classification.get("application", [])
-        pmx_apps = [t for t in pmx_apps if t != FALLBACK_TAG]
-        if not pmx_apps:
-            pmx_apps = [FALLBACK_TAG]
-
-        for app in pmx_apps:
-            cat_map[app].append(pmid)
-
-        # --- Prepare Zotero tags ---
-        if zot is not None:
-            zot_tags = []
-            for axis, tags in classification.items():
-                for t in tags:
-                    zot_tags.append({"tag": f"{axis}:{t}"})
-            article_for_zotero = article.copy()
-            article_for_zotero["tags"] = zot_tags
-            try:
-                zot.create_items([article_for_zotero])
-                sleep(1)
-            except Exception as e:
-                print(f"Error uploading {pmid} to Zotero: {e}")
-
-    return cat_map
 
 def generate_readme_toc(cat_map):
     """
@@ -390,6 +351,7 @@ def generate_readme_toc(cat_map):
         link = cat.lower().replace(" ", "-")
         toc_lines.append(f"- [{cat}](#{link})")
     return "\n".join(toc_lines) + "\n"
+
 
 def update_readme(articles, cat_map, filename="README.md"):
     header = f"""# Awesome AI/ML Applications in Pharmacometrics 🧬🤖
@@ -419,12 +381,16 @@ A curated list of research papers on AI/ML applications in pharmacometrics and c
                 paper_type = classification.get("paper_type", [])
 
                 # Collect reviews/tutorials/perspectives for bottom
-                if any(pt in ["review", "tutorial", "perspective"] for pt in paper_type):
+                if any(
+                    pt in ["review", "tutorial", "perspective"] for pt in paper_type
+                ):
                     review_pmids.append(pmid)
                     continue
 
                 methodology = classification.get("methodology", [])
-                methodology_str = f"Methodology: {', '.join(methodology)}" if methodology else ""
+                methodology_str = (
+                    f"Methodology: {', '.join(methodology)}" if methodology else ""
+                )
 
                 fh.write(
                     f"\n- **[{article['title']}]({article['url']})**\n"
@@ -436,11 +402,13 @@ A curated list of research papers on AI/ML applications in pharmacometrics and c
         # Append reviews/tutorials/perspectives at the bottom (also alphabetical by title)
         if review_pmids:
             fh.write("\n## Reviews / Tutorials / Perspectives\n")
-            for pmid in sorted(review_pmids, key=lambda x: articles[x]['title']):
+            for pmid in sorted(review_pmids, key=lambda x: articles[x]["title"]):
                 article = articles[pmid]
                 classification = article.get("classification", {})
                 methodology = classification.get("methodology", [])
-                methodology_str = f"Methodology: {', '.join(methodology)}" if methodology else ""
+                methodology_str = (
+                    f"Methodology: {', '.join(methodology)}" if methodology else ""
+                )
 
                 fh.write(
                     f"\n- **[{article['title']}]({article['url']})**\n"
@@ -448,6 +416,7 @@ A curated list of research papers on AI/ML applications in pharmacometrics and c
                     f"\t- Published: {article.get('date', 'N/A')}\n"
                     f"\t- Summary: {article.get('extra', '')}\n"
                 )
+
 
 def main(
     filename="all_articles.json",
@@ -465,45 +434,73 @@ def main(
     - Update README
     """
 
-    # --- Load previously fetched articles ---
     articles = {}
     if os.path.isfile(filename):
         with open(filename, "r") as fh:
             articles = json.load(fh)
 
-    # --- Query PubMed ---
-    print("🔬 Fetching recent AI/ML pharmacometrics papers from PubMed...")
-    pmids = get_pmids(REVIEW_PUBMED_QUERY_PMX, days_back=days_back, max_results=max_results)
-    print(f"Found {len(pmids)} PMIDs")
+    # Download new papers
+    pmids = {pmid for pmid in get_pmids(MAIN_QUERY, days_back, max_results)}
+    print("🔬 Fetching recent AI/ML pharma papers from PubMed...")
+    articles.update({pmid: query_pmid(pmid) for pmid in pmids if pmid not in articles})
+    print(f"Got {len(pmids)} articles")
 
-    # --- Fetch new articles ---
-    new_pmids = [pmid for pmid in pmids if pmid not in articles]
-    for pmid in new_pmids:
-        try:
-            articles[pmid] = query_pmid(pmid)
-        except Exception as e:
-            print(f"Error fetching PMID {pmid}: {e}")
-
-    print(f"Total articles in memory: {len(articles)}")
-
-    # --- Determine which PMIDs need upload to Zotero ---
-    pmids_to_upload = set()
+    # If zotero is accessible (API key is given), then check which papers have
+    # been already uploaded
     if zot is not None:
-        existing_pmids_in_zot = {x["data"]["PMID"] for x in zot.items()}
-        pmids_to_upload = set(articles.keys()) - existing_pmids_in_zot
+        pmids_in_zot = {x["data"]["PMID"] for x in zot.items()}
+        pmids_to_upload = set(articles.keys()) - pmids_in_zot
+    print(f"Number of articles to upload: {len(pmids_to_upload)}")
 
-    # --- Classify and prepare articles ---
-    print("🤖 Classifying papers with Claude and preparing Zotero...")
-    cat_map = classify_and_prepare(articles, zot=zot)
+    # Only store PMX applications as README sections
+    cat_map = defaultdict(list)
+    num_uploaded = 0
+    for pmid, article in articles.items():
+        classification, summary = classify_paper(
+            article.get("title"), article.get("abstractNote", "")
+        )
 
+        # --- README aggregation: only use PMX applications as section headers ---
+        pmx_apps = classification.get("application", [])
+        pmx_apps = [t for t in pmx_apps if t != FALLBACK_TAG]
+        if not pmx_apps:
+            pmx_apps = [FALLBACK_TAG]
+        for app in pmx_apps:
+            cat_map[app].append(pmid)
+
+        # Update article entries based on response from claude
+        article["extra"] = summary  # Always keep AI summary
+        article["tags"] = [
+            {"tag": f"{axis}:{t}"}
+            for axis, tags in classification.items()
+            for t in tags
+        ]
+
+        # Upload to zotero
+        if zot is not None and article["PMID"] in pmids_to_upload:
+            print(
+                f"Uploading ({num_uploaded} / {len(pmids_to_upload)}) to zotero PMID:",
+                article["PMID"],
+                end="\r",
+            )
+            zot.create_items([article])
+            num_uploaded += 1
+            sleep(1)
+
+    if len(pmids_to_upload) > 0:
+        # To make sure previous print statement is fully overwritten,
+        # we add a space 20 times
+        print("Finished uploading" + " " * 20)
+
+    # Update json file
     print("📝 Updating JSON file...")
-    # --- Update JSON file ---
     with open(filename, "w") as fh:
-        json.dump(articles, fh, indent=2)
+        json.dump(articles, fh, indent=1)
 
-    # --- Update README ---
+    # Update the readme file
     print("📝 Updating README.md...")
     update_readme(articles, cat_map, filename=readme_path)
+
     print("✅ Pipeline complete!")
 
 
