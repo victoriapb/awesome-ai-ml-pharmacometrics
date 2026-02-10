@@ -349,7 +349,7 @@ def generate_readme_toc(cat_map):
     """
     toc_lines = ["## Table of Contents\n"]
     for cat in sorted(cat_map.keys()):  # Sort alphabetically
-        link = re.sub(r"\s+", "-", re.sub(r"[,()/]", "", cat)).lower()
+        link = re.sub(r"\s+", "-", re.sub(r"[,()/–]", "", cat)).lower()
         toc_lines.append(f"- [{cat}](#{link})")
     return "\n".join(toc_lines) + "\n"
 

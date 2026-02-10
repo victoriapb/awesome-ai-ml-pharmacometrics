@@ -19,7 +19,7 @@ A curated list of research papers on AI/ML applications in pharmacometrics and c
 - [Outcome prediction](#outcome-prediction)
 - [Patient risk stratification / management](#patient-risk-stratification-management)
 - [Pharmacometric modeling](#pharmacometric-modeling)
-- [Pharmacometric modeling (Pharmacokinetic modeling, survival analysis, exposure–response analysis, pharmacodynamic modeling)](#pharmacometric-modeling-pharmacokinetic-modeling-survival-analysis-exposure–response-analysis-pharmacodynamic-modeling)
+- [Pharmacometric modeling (Pharmacokinetic modeling, survival analysis, exposure–response analysis, pharmacodynamic modeling)](#pharmacometric-modeling-pharmacokinetic-modeling-survival-analysis-exposureresponse-analysis-pharmacodynamic-modeling)
 - [Postmarketing surveillance](#postmarketing-surveillance)
 - [Precision medicine / optimized treatment regimen](#precision-medicine-optimized-treatment-regimen)
 
