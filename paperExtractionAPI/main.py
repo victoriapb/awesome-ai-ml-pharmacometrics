@@ -346,6 +346,14 @@ Response format:
         )
 
 
+def tags2classification(tags):
+    classification = defaultdict(list)
+    for tag in tags:
+        axis, val = tag["tag"].split(":")
+        classification[axis].append(val)
+    return classification
+
+
 def generate_readme_toc(cat_map):
     """
     Generate an alphabetical Markdown Table of Contents for PMX applications.
@@ -381,7 +389,7 @@ A curated list of research papers on AI/ML applications in pharmacometrics and c
             fh.write(f"\n## {cat}\n")
             for pmid in pmids:
                 article = articles[pmid]
-                classification = article.get("classification", {})
+                classification = tags2classification(article.get("tags", {}))
                 paper_type = classification.get("paper_type", [])
 
                 # Collect reviews/tutorials/perspectives for bottom
@@ -410,7 +418,7 @@ A curated list of research papers on AI/ML applications in pharmacometrics and c
             fh.write("\n## Reviews / Tutorials / Perspectives\n")
             for pmid in sorted(review_pmids, key=lambda x: articles[x]["title"]):
                 article = articles[pmid]
-                classification = article.get("classification", {})
+                classification = tags2classification(article.get("tags", {}))
                 methodology = classification.get("methodology", [])
                 methodology_str = (
                     f"\t- Methodology: {', '.join(methodology)}\n"

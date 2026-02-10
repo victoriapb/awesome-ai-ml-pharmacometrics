@@ -1,6 +1,7 @@
 
 .ipynb_checkpoints/
 .jupyter.log
+__pycache__/
 
 .cache/
 *.json
