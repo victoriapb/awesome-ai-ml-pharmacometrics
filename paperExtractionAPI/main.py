@@ -393,12 +393,14 @@ A curated list of research papers on AI/ML applications in pharmacometrics and c
 
                 methodology = classification.get("methodology", [])
                 methodology_str = (
-                    f"Methodology: {', '.join(methodology)}" if methodology else ""
+                    f"\t- Methodology: {', '.join(methodology)}\n"
+                    if methodology
+                    else ""
                 )
 
                 fh.write(
                     f"\n- **[{article['title']}]({article['url']})**\n"
-                    f"\t- {methodology_str}\n"
+                    f"{methodology_str}"
                     f"\t- Published: {article.get('date', 'N/A')}\n"
                     f"\t- Summary: {article.get('extra', '')}\n"
                 )
@@ -411,12 +413,14 @@ A curated list of research papers on AI/ML applications in pharmacometrics and c
                 classification = article.get("classification", {})
                 methodology = classification.get("methodology", [])
                 methodology_str = (
-                    f"Methodology: {', '.join(methodology)}" if methodology else ""
+                    f"\t- Methodology: {', '.join(methodology)}\n"
+                    if methodology
+                    else ""
                 )
 
                 fh.write(
                     f"\n- **[{article['title']}]({article['url']})**\n"
-                    f"\t- {methodology_str}\n"
+                    f"{methodology_str}"
                     f"\t- Published: {article.get('date', 'N/A')}\n"
                     f"\t- Summary: {article.get('extra', '')}\n"
                 )
@@ -466,7 +470,7 @@ def main(
 
         # --- README aggregation: only use PMX applications as section headers ---
         pmx_apps = classification.get("application", [])
-        pmx_apps = [t for t in pmx_apps if t not in (FALLBACK_TAG,"not_AI_ML")]
+        pmx_apps = [t for t in pmx_apps if t not in (FALLBACK_TAG, "not_AI_ML")]
         if not pmx_apps:
             pmx_apps = [FALLBACK_TAG]
         for app in pmx_apps:
