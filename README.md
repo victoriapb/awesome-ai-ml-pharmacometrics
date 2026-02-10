@@ -7,7 +7,7 @@ A curated list of research papers on AI/ML applications in pharmacometrics and c
 ---
 ## Table of Contents
 
-- [Automation of PK/PD modeling](#automation-of-pk-pd-modeling)
+- [Automation of PK/PD modeling](#automation-of-pkpd-modeling)
 - [Covariate selection / confounding adjustment](#covariate-selection-confounding-adjustment)
 - [Discovery of subpatient groups](#discovery-of-subpatient-groups)
 - [Dose selection / optimization](#dose-selection-optimization)
@@ -15,11 +15,11 @@ A curated list of research papers on AI/ML applications in pharmacometrics and c
 - [Drug toxicity prediction](#drug-toxicity-prediction)
 - [Endpoint / biomarker assessment](#endpoint-biomarker-assessment)
 - [Enrichment design](#enrichment-design)
-- [Other/General](#other/general)
+- [Other/General](#othergeneral)
 - [Outcome prediction](#outcome-prediction)
 - [Patient risk stratification / management](#patient-risk-stratification-management)
 - [Pharmacometric modeling](#pharmacometric-modeling)
-- [Pharmacometric modeling (Pharmacokinetic modeling, survival analysis, exposure–response analysis, pharmacodynamic modeling)](#pharmacometric-modeling-(pharmacokinetic-modeling-survival-analysis-exposure–response-analysis-pharmacodynamic-modeling))
+- [Pharmacometric modeling (Pharmacokinetic modeling, survival analysis, exposure–response analysis, pharmacodynamic modeling)](#pharmacometric-modeling-pharmacokinetic-modeling-survival-analysis-exposure–response-analysis-pharmacodynamic-modeling)
 - [Postmarketing surveillance](#postmarketing-surveillance)
 - [Precision medicine / optimized treatment regimen](#precision-medicine-optimized-treatment-regimen)
 
@@ -96,6 +96,11 @@ A curated list of research papers on AI/ML applications in pharmacometrics and c
 	- Published: 2025
 	- Summary: ML models predict optimal ceftaroline dosing for pediatric patients to address age-related physiological variability challenges.
 
+- **[AI-driven ANN and RSM-CCD integrated optimization of cinnarizine-domperidone bilayer tablet: In-vitro evaluation and in-silico PBPK modeling using GastroPlus®.](https://pubmed.ncbi.nlm.nih.gov/41546579/)**
+	- 
+	- Published: 2026Feb
+	- Summary: ANN and RSM-CCD optimization of cinnarizine-domperidone bilayer tablet with in-vitro evaluation and PBPK modeling using GastroPlus®.
+
 ## Drug repurposing
 
 - **[The Emerging Role of Artificial Intelligence in Drug Discovery and Development: Implications for Cardiovascular Pharmacology.](https://pubmed.ncbi.nlm.nih.gov/41632854/)**
@@ -149,6 +154,11 @@ A curated list of research papers on AI/ML applications in pharmacometrics and c
 	- 
 	- Published: 2026
 	- Summary: Deep learning and molecular dynamics identify three phytochemicals as potential FGFR2 inhibitors for cancer treatment.
+
+- **[Review on electrochemical sensors for anticancer drug susceptibility testing.](https://pubmed.ncbi.nlm.nih.gov/41526129/)**
+	- 
+	- Published: 2026Feb01
+	- Summary: Review of electrochemical sensors for real-time anticancer drug susceptibility testing as alternative to traditional methods.
 
 ## Endpoint / biomarker assessment
 
@@ -206,6 +216,16 @@ A curated list of research papers on AI/ML applications in pharmacometrics and c
 	- Published: 2025
 	- Summary: Review of bulleyaconitine A's analgesic mechanisms, clinical applications, and AI-assisted approaches to overcome pharmacokinetic challenges.
 
+- **[Degraders on Demand: Engineering Smart Nanocarriers for PROTAC Delivery.](https://pubmed.ncbi.nlm.nih.gov/41474145/)**
+	- 
+	- Published: 2026Feb02
+	- Summary: Review of nanocarrier delivery systems for PROTACs, addressing pharmacokinetic challenges and mentioning AI integration in development.
+
+- **[A Comprehensive Review of Analytical Techniques for Doxycycline and Its Metabolites.](https://pubmed.ncbi.nlm.nih.gov/41449113/)**
+	- 
+	- Published: 2026Feb
+	- Summary: Comprehensive review of analytical techniques for detecting and quantifying doxycycline and its metabolites in various sample types.
+
 ## Outcome prediction
 
 - **[High-Throughput Physiologically Based Pharmacokinetic Model for Rodent Pharmacokinetics Prediction Using Machine Learning-Predicted Inputs and a Large In Vivo Pharmacokinetics Data Set.](https://pubmed.ncbi.nlm.nih.gov/41617209/)**
@@ -246,6 +266,16 @@ A curated list of research papers on AI/ML applications in pharmacometrics and c
 	- 
 	- Published: 2026Jan30
 	- Summary: HT-PBPK model using ML-predicted inputs to predict rodent PK endpoints for >9000 compounds, replacing in vitro data with in silico predictions.
+
+- **[From mechanism to application: Harnessing oxidative stress signaling for innovative food design.](https://pubmed.ncbi.nlm.nih.gov/41508505/)**
+	- 
+	- Published: 2026Feb01
+	- Summary: Review proposing data-driven framework combining computational modeling and deep learning for personalized functional food design.
+
+- **[AI-driven ANN and RSM-CCD integrated optimization of cinnarizine-domperidone bilayer tablet: In-vitro evaluation and in-silico PBPK modeling using GastroPlus®.](https://pubmed.ncbi.nlm.nih.gov/41546579/)**
+	- 
+	- Published: 2026Feb
+	- Summary: ANN and RSM-CCD optimization of cinnarizine-domperidone bilayer tablet with in-vitro evaluation and PBPK modeling using GastroPlus®.
 
 ## Pharmacometric modeling (Pharmacokinetic modeling, survival analysis, exposure–response analysis, pharmacodynamic modeling)
 
@@ -307,3 +337,13 @@ A curated list of research papers on AI/ML applications in pharmacometrics and c
 	- 
 	- Published: 2026Feb10
 	- Summary: Perspective on integrating molecular measures and AI-based assessments with clinical endpoints for IBD treatment optimization.
+
+- **[From mechanism to application: Harnessing oxidative stress signaling for innovative food design.](https://pubmed.ncbi.nlm.nih.gov/41508505/)**
+	- 
+	- Published: 2026Feb01
+	- Summary: Review proposing data-driven framework combining computational modeling and deep learning for personalized functional food design.
+
+- **[Review on electrochemical sensors for anticancer drug susceptibility testing.](https://pubmed.ncbi.nlm.nih.gov/41526129/)**
+	- 
+	- Published: 2026Feb01
+	- Summary: Review of electrochemical sensors for real-time anticancer drug susceptibility testing as alternative to traditional methods.

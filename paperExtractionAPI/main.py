@@ -7,6 +7,7 @@ Fetches recent papers from PubMed and classifies them using Claude API
 import argparse
 import json
 import os
+import re
 import xml.etree.ElementTree as ET
 from collections import defaultdict
 from datetime import datetime, timedelta
@@ -348,7 +349,7 @@ def generate_readme_toc(cat_map):
     """
     toc_lines = ["## Table of Contents\n"]
     for cat in sorted(cat_map.keys()):  # Sort alphabetically
-        link = cat.lower().replace(" ", "-")
+        link = re.sub(r"\s+", "-", re.sub(r"[,()/]", "", cat)).lower()
         toc_lines.append(f"- [{cat}](#{link})")
     return "\n".join(toc_lines) + "\n"
 
