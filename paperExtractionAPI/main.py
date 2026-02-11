@@ -443,11 +443,16 @@ def is_review(paper_types):
     return any([x in ("review", "tutorial", "perspective") for x in paper_types])
 
 
+def contains_not_ai_ml(classification):
+    return any([tag == "not_AI_ML" for tags in classification.values() for tag in tags])
+
+
 def main(
     filename="all_articles.json",
     readme_path="README.md",
     days_back=365,
     max_results=100,
+    zotero=True,
 ):
     """
     Full pipeline:
@@ -486,6 +491,9 @@ def main(
             article.get("title"), article.get("abstractNote", "")
         )
 
+        if contains_not_ai_ml(classification):
+            continue
+
         # --- README aggregation: only use PMX applications as section headers ---
         if is_review(classification.get("paper_type", [])):
             review_pmids.append(pmid)
@@ -502,7 +510,7 @@ def main(
         ]
 
         # Upload to zotero
-        if zot is not None and pmid in pmids_to_upload:
+        if zot is not None and zotero and pmid in pmids_to_upload:
             print(
                 f"Uploading ({num_uploaded} / {len(pmids_to_upload)}) to zotero PMID:",
                 pmid,
@@ -512,7 +520,7 @@ def main(
             num_uploaded += 1
             sleep(1)
 
-    if len(pmids_to_upload) > 0:
+    if zotero and len(pmids_to_upload) > 0:
         # To make sure previous print statement is fully overwritten,
         # we add a space 25 times
         print("Finished uploading" + " " * 25)
@@ -546,6 +554,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--max_results", default=20, type=int, help="Max number of results"
     )
+    parser.add_argument("--zotero", action=argparse.BooleanOptionalAction)
 
     args = parser.parse_args()
 
