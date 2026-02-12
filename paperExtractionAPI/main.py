@@ -17,6 +17,7 @@ import anthropic
 import requests
 from diskcache import Cache
 from pyzotero import Zotero
+from tqdm import tqdm
 
 cache = Cache(".cache")
 
@@ -470,36 +471,24 @@ def main(
             articles = json.load(fh)
 
     # Download new papers
-    pmids = {pmid for pmid in get_pmids(MAIN_QUERY, days_back, max_results)}
     print("🔬 Fetching recent AI/ML pharma papers from PubMed...")
-    articles.update({pmid: query_pmid(pmid) for pmid in pmids if pmid not in articles})
-    print(f"Got {len(pmids)} articles")
+    pmids = {pmid for pmid in get_pmids(MAIN_QUERY, days_back, max_results)}
+    new_pmids = [pmid for pmid in pmids if pmid not in articles]
+    bar_format = "Downloading info from Pubmed {n} / {total}"
+    articles.update(
+        {pmid: query_pmid(pmid) for pmid in tqdm(new_pmids, bar_format=bar_format)}
+    )
 
     # If zotero is accessible (API key is given), then check which papers have
     # been already uploaded
-    if zot is not None:
-        pmids_in_zot = {x["data"]["PMID"] for x in zot.items()}
-        pmids_to_upload = set(articles.keys()) - pmids_in_zot
-    print(f"Number of articles to upload: {len(pmids_to_upload)}")
-
     # Only store PMX applications as README sections
     cat_map = defaultdict(list)
     review_pmids = []
-    num_uploaded = 0
-    for pmid, article in articles.items():
+    not_ai_ml_pmids = []
+    for pmid, article in tqdm(articles.items(), bar_format="Classifying {n} / {total}"):
         classification, summary = classify_paper(
             article.get("title"), article.get("abstractNote", "")
         )
-
-        if contains_not_ai_ml(classification):
-            continue
-
-        # --- README aggregation: only use PMX applications as section headers ---
-        if is_review(classification.get("paper_type", [])):
-            review_pmids.append(pmid)
-        else:
-            for app in filter_applications(classification.get("application", [])):
-                cat_map[app].append(pmid)
 
         # Update article entries based on response from claude
         article["extra"] = summary  # Always keep AI summary
@@ -509,21 +498,38 @@ def main(
             for t in tags
         ]
 
-        # Upload to zotero
-        if zot is not None and zotero and pmid in pmids_to_upload:
-            print(
-                f"Uploading ({num_uploaded} / {len(pmids_to_upload)}) to zotero PMID:",
-                pmid,
-                end="\r",
-            )
-            zot.create_items([article])
-            num_uploaded += 1
+        # If classified as not AI/ML paper, then don't add to list of papers to be put
+        # into readme and to be uploaded to zotero
+        if contains_not_ai_ml(classification):
+            not_ai_ml_pmids.append(pmid)
+            continue
+
+        # --- README aggregation: only use PMX applications as section headers ---
+        if is_review(classification.get("paper_type", [])):
+            review_pmids.append(pmid)
+        else:
+            for app in filter_applications(classification.get("application", [])):
+                cat_map[app].append(pmid)
+
+    # Upload to zotero
+    if zot is not None and zotero:
+
+        pmids_in_zot = {x["data"]["PMID"] for x in zot.items()}
+        # pmids_to_upload = set(articles.keys()) - pmids_in_zot - set(not_ai_ml_pmids)
+        pmids_to_upload = [
+            pmid
+            for pmid in articles.keys()
+            if pmid not in pmids_in_zot and pmid not in not_ai_ml_pmids
+        ]
+        bar_format = "Uploading to zotero {n} / {total}"
+        for pmid in tqdm(pmids_to_upload, bar_format=bar_format):
+            zot.create_items([articles[pmid]])
             sleep(1)
 
-    if zotero and len(pmids_to_upload) > 0:
-        # To make sure previous print statement is fully overwritten,
-        # we add a space 25 times
-        print("Finished uploading" + " " * 25)
+        if len(pmids_to_upload) > 0:
+            # To make sure previous print statement is fully overwritten,
+            # we add a space 25 times
+            print("Finished uploading" + " " * 25)
 
     # Update json file
     print("📝 Updating JSON file...")
@@ -554,7 +560,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--max_results", default=20, type=int, help="Max number of results"
     )
-    parser.add_argument("--zotero", action=argparse.BooleanOptionalAction)
+    parser.add_argument("--zotero", action=argparse.BooleanOptionalAction, default=True)
 
     args = parser.parse_args()
 
