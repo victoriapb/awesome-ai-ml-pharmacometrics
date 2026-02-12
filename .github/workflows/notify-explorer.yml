@@ -1,0 +1,31 @@
+# ────────────────────────────────────────────────────────────────
+# Place this file in the PRIVATE repo:
+#   victoriapb/awesome-ai-ml-pharmacometrics/.github/workflows/notify-explorer.yml
+#
+# It fires a repository_dispatch event to the public explorer repo
+# whenever README.md is updated on main.
+# ────────────────────────────────────────────────────────────────
+
+name: Notify Explorer Site
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'README.md'
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger explorer rebuild
+        env:
+          GH_PAT: ${{ secrets.EXPLORER_DISPATCH_PAT }}
+        run: |
+          curl -fsSL -X POST \
+            -H "Authorization: token $GH_PAT" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/anuraag-saini/ai-ml-pharmacometrics-explorer/dispatches" \
+            -d '{"event_type": "readme-updated"}'
+
+          echo "✅ Triggered explorer site rebuild"
