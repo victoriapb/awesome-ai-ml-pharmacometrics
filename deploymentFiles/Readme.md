@@ -49,7 +49,7 @@ You need **one** fine-grained PAT that covers both repos.
    - **Expiration**: 90 days (or custom — you'll need to rotate it)
    - **Resource owner**: Your account (`anuraag-saini`)
    - **Repository access**: Select **"Only select repositories"**, then pick:
-     - `anuraag-saini/ai-ml-pharmacometrics-explorer`
+     - `anuraag-saini/awesome-ai-ml-pharmacometrics-explorer`
      - `victoriapb/awesome-ai-ml-pharmacometrics` *(you need collaborator access)*
    - **Permissions**:
      - **Contents**: Read (to fetch README from the private repo)
@@ -62,7 +62,7 @@ You need **one** fine-grained PAT that covers both repos.
 
 ## Step 2: Add the secret to the public explorer repo
 
-1. Go to https://github.com/anuraag-saini/ai-ml-pharmacometrics-explorer/settings/secrets/actions
+1. Go to https://github.com/anuraag-saini/awesome-ai-ml-pharmacometrics-explorer/settings/secrets/actions
 2. Click **New repository secret**
 3. Name: `SOURCE_REPO_PAT`
 4. Value: paste the PAT from Step 1
@@ -75,7 +75,7 @@ You need **one** fine-grained PAT that covers both repos.
 Your repo should look like this:
 
 ```
-ai-ml-pharmacometrics-explorer/
+awesome-ai-ml-pharmacometrics-explorer/
 ├── .github/
 │   └── workflows/
 │       └── update-site.yml      ← from this package
@@ -118,11 +118,11 @@ Skip this step. The daily cron at 06:00 UTC will keep things in sync with at mos
 
 ## Step 5: Test it
 
-1. Go to https://github.com/anuraag-saini/ai-ml-pharmacometrics-explorer/actions
+1. Go to https://github.com/anuraag-saini/awesome-ai-ml-pharmacometrics-explorer/actions
 2. Click **"Update Explorer Site"** in the left sidebar
 3. Click **"Run workflow"** → **"Run workflow"**
 4. Watch it run — should take ~15 seconds
-5. Check https://anuraag-saini.github.io/ai-ml-pharmacometrics-explorer/
+5. Check https://anuraag-saini.github.io/awesome-ai-ml-pharmacometrics-explorer/
 
 ---
 
