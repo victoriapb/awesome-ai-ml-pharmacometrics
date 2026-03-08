@@ -526,11 +526,6 @@ def main(
             zot.create_items([articles[pmid]])
             sleep(1)
 
-        if len(pmids_to_upload) > 0:
-            # To make sure previous print statement is fully overwritten,
-            # we add a space 25 times
-            print("Finished uploading" + " " * 25)
-
     # Update json file
     print("📝 Updating JSON file...")
     with open(filename, "w") as fh:
