@@ -2,7 +2,9 @@
 
 A curated list of research papers on AI/ML applications in pharmacometrics and clinical pharmacology, regularly updated.
 
-**Last Updated**: 2026-03-08
+**Last Updated**: 2026-03-14
+
+Interactive explorer: <https://victoriapb.github.io/awesome-ai-ml-pharmacometrics/>
 
 ---
 ## Table of Contents
@@ -9170,6 +9172,11 @@ A curated list of research papers on AI/ML applications in pharmacometrics and c
 	- Published: 2019Feb
 	- Summary: Uses support vector machine and principal component analysis with global sensitivity analysis to explore sexual dimorphism and variability in pharmacokinetic model parameters.
 
+- **[Toward Generalizable Data-Driven Pharmacokinetics with Interpretable Neural ODEs.](https://pubmed.ncbi.nlm.nih.gov/41738401/)**
+	- Methodology: Deep learning, Hybrid mechanistic–ML models, Neural networks
+	- Published: 2026Mar09
+	- Summary: Proposes Uni-PK, a neural ODE framework combining molecular representations with mechanistic PK structure for generalizable drug concentration-time modeling.
+
 ## Postmarketing surveillance
 
 - **[PharmBERT: a domain-specific BERT model for drug labels.](https://pubmed.ncbi.nlm.nih.gov/37317617/)**
@@ -10006,6 +10013,11 @@ A curated list of research papers on AI/ML applications in pharmacometrics and c
 	- Methodology: Supervised learning
 	- Published: 2023Aug
 	- Summary: Machine learning is used to predict vancomycin treatment targets (trough concentration and AUC) to calculate optimal individualized dosing regimens for neonates.
+
+- **[Toward Generalizable Data-Driven Pharmacokinetics with Interpretable Neural ODEs.](https://pubmed.ncbi.nlm.nih.gov/41738401/)**
+	- Methodology: Deep learning, Hybrid mechanistic–ML models, Neural networks
+	- Published: 2026Mar09
+	- Summary: Proposes Uni-PK, a neural ODE framework combining molecular representations with mechanistic PK structure for generalizable drug concentration-time modeling.
 
 ## RWD phenotyping
 
@@ -11663,6 +11675,11 @@ A curated list of research papers on AI/ML applications in pharmacometrics and c
 	- Methodology: Supervised learning
 	- Published: 2026Feb04
 	- Summary: This review discusses how AI/ML methods are being used to optimize polymeric nanoparticle formulations, predict drug release patterns, and accelerate clinical development.
+
+- **[Recent advances and current landscape of software tools for image analysis and dosimetry in nuclear medicine.](https://pubmed.ncbi.nlm.nih.gov/41795779/)**
+	- Methodology: Deep learning
+	- Published: 2026Mar08
+	- Summary: This review surveys software tools for nuclear medicine image analysis and dosimetry, highlighting AI-driven segmentation and modeling advances for personalized radiopharmaceutical therapy.
 
 - **[Recent advances in computational prediction of drug absorption and permeability in drug discovery.](https://pubmed.ncbi.nlm.nih.gov/17017917/)**
 	- Methodology: Supervised learning
