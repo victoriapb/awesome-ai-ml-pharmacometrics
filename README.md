@@ -4,34 +4,37 @@ A curated list of research papers on AI/ML applications in pharmacometrics and c
 
 **Last Updated**: 2026-03-14
 
-Interactive explorer: <https://victoriapb.github.io/awesome-ai-ml-pharmacometrics/>
+Interactive explorer: <https://aiml-sig.github.io/awesome-ai-ml-pharmacometrics/>
 
 ---
 ## Table of Contents
 
-- [Adherence to drug regimen](#adherence-to-drug-regimen)
-- [Automation of PK/PD modeling](#automation-of-pkpd-modeling)
-- [Causal inference](#causal-inference)
-- [Covariate selection / confounding adjustment](#covariate-selection-confounding-adjustment)
-- [Data imputation](#data-imputation)
-- [Discovery of subpatient groups](#discovery-of-subpatient-groups)
-- [Disease progression modeling](#disease-progression-modeling)
-- [Dose selection / optimization](#dose-selection-optimization)
-- [Drug repurposing](#drug-repurposing)
-- [Drug toxicity prediction](#drug-toxicity-prediction)
-- [Endpoint / biomarker assessment](#endpoint-biomarker-assessment)
-- [Enrichment design](#enrichment-design)
-- [Exposure–response analysis](#exposureresponse-analysis)
-- [Model selection](#model-selection)
-- [Other/General](#othergeneral)
-- [Outcome prediction](#outcome-prediction)
-- [Patient risk stratification / management](#patient-risk-stratification-management)
-- [Pharmacodynamic modeling](#pharmacodynamic-modeling)
-- [Pharmacokinetic modeling](#pharmacokinetic-modeling)
-- [Postmarketing surveillance](#postmarketing-surveillance)
-- [Precision medicine / optimized treatment regimen](#precision-medicine-optimized-treatment-regimen)
-- [RWD phenotyping](#rwd-phenotyping)
-- [Survival analysis](#survival-analysis)
+- [Awesome AI/ML Applications in Pharmacometrics 🧬🤖](#awesome-aiml-applications-in-pharmacometrics-)
+	- [Table of Contents](#table-of-contents)
+	- [Adherence to drug regimen](#adherence-to-drug-regimen)
+	- [Automation of PK/PD modeling](#automation-of-pkpd-modeling)
+	- [Causal inference](#causal-inference)
+	- [Covariate selection / confounding adjustment](#covariate-selection--confounding-adjustment)
+	- [Data imputation](#data-imputation)
+	- [Discovery of subpatient groups](#discovery-of-subpatient-groups)
+	- [Disease progression modeling](#disease-progression-modeling)
+	- [Dose selection / optimization](#dose-selection--optimization)
+	- [Drug repurposing](#drug-repurposing)
+	- [Drug toxicity prediction](#drug-toxicity-prediction)
+	- [Endpoint / biomarker assessment](#endpoint--biomarker-assessment)
+	- [Enrichment design](#enrichment-design)
+	- [Exposure–response analysis](#exposureresponse-analysis)
+	- [Model selection](#model-selection)
+	- [Other/General](#othergeneral)
+	- [Outcome prediction](#outcome-prediction)
+	- [Patient risk stratification / management](#patient-risk-stratification--management)
+	- [Pharmacodynamic modeling](#pharmacodynamic-modeling)
+	- [Pharmacokinetic modeling](#pharmacokinetic-modeling)
+	- [Postmarketing surveillance](#postmarketing-surveillance)
+	- [Precision medicine / optimized treatment regimen](#precision-medicine--optimized-treatment-regimen)
+	- [RWD phenotyping](#rwd-phenotyping)
+	- [Survival analysis](#survival-analysis)
+	- [Reviews / Tutorials / Perspectives](#reviews--tutorials--perspectives)
 
 ## Adherence to drug regimen
 
